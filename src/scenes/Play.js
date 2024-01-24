@@ -91,11 +91,26 @@ class Play extends Phaser.Scene {
 		keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
 		keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 
-		// initialize score
-		this.p1Score = 0
+		// initialize score and timer
+		this.p1Score = 0;
+		this.timer = game.settings.gameTimer;
+		this.addedTime = 0;
 
-		// display score
+		// display score and timer
 		let scoreConfig = {
+			fontFamily: 'Courier',
+			fontSize: '28px',
+			backgroundColor: '#F3B141',
+			color: '#843605',
+			align: 'right',
+			padding: {
+			top: 5,
+			bottom: 5,
+			},
+			fixedWidth: 100
+		}
+
+		let timerConfig = {
 			fontFamily: 'Courier',
 			fontSize: '28px',
 			backgroundColor: '#F3B141',
@@ -112,6 +127,12 @@ class Play extends Phaser.Scene {
 			borderUISize + borderPadding*2, 
 			this.p1Score, 
 			scoreConfig)
+
+		this.timerRight = this.add.text(
+			borderUISize + borderPadding + game.config.width / 1.4, 
+			borderUISize + borderPadding * 2, 
+			this.timer, 
+			timerConfig)
 		
 
 		// GAME OVER 
@@ -132,7 +153,7 @@ class Play extends Phaser.Scene {
 		if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
 			this.scene.start("menuScene")
 		  }
-
+		
 		this.starfield.tilePositionX -= 4;
 		if(!this.gameOver) {               
 			this.p1Rocket.update()         // update rocket sprite
@@ -145,15 +166,23 @@ class Play extends Phaser.Scene {
 		if(this.checkCollision(this.p1Rocket, this.ship03)) {
 			this.p1Rocket.reset()
 			this.shipExplode(this.ship03)
+			console.log(this.timer)
 		}
 		if (this.checkCollision(this.p1Rocket, this.ship02)) {
 			this.p1Rocket.reset()
 			this.shipExplode(this.ship02)
+			console.log(this.timer)
 		}
 		if (this.checkCollision(this.p1Rocket, this.ship01)) {
 			this.p1Rocket.reset()
 			this.shipExplode(this.ship01)
+			console.log(this.timer)
+			
 		}
+
+		this.timer = ((game.settings.gameTimer - this.clock.elapsed) / 1000) + this.addedTime;
+		console.log(`addedtime: ${this.addedTime}`);
+		this.timerRight.text = this.timer;
 	}
 
 	checkCollision(rocket, ship) {
@@ -162,7 +191,7 @@ class Play extends Phaser.Scene {
 		  rocket.x + rocket.width > ship.x && 
 		  rocket.y < ship.y + ship.height &&
 		  rocket.height + rocket.y > ship. y) {
-		  return true
+			return true
 		} 
 		else {
 		  return false
@@ -183,6 +212,9 @@ class Play extends Phaser.Scene {
 		this.sound.play('sfx-explosion')
 		// score add and text update
 		this.p1Score += ship.points
-		this.scoreLeft.text = this.p1Score     
+		this.scoreLeft.text = this.p1Score
+		this.addedTime += ship.points;
+		//console.log(this.addedTime)
+		
 	  }
   }
