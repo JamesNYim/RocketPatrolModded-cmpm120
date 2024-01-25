@@ -142,7 +142,6 @@ class Play extends Phaser.Scene {
 		let timeElapsed = this.timeHandler.getElapsedSeconds();
 		let timeLeft = (this.timeLeft / 1000) - timeElapsed;
 		this.timerRight.text = timeLeft;
-		console.log(`timeLeft: ${timeLeft}`);
 		this.isGameOver(timeLeft);
 		// check key input for restart
 		if(this.gameOver && Phaser.Input.Keyboard.JustDown(keyRESET)) {
@@ -159,28 +158,39 @@ class Play extends Phaser.Scene {
 			this.ship02.update()
 			this.ship03.update()
 		} 
-
+		let hasHit = false;
 		// check collisions
 		if(this.checkCollision(this.p1Rocket, this.ship03)) {
 			this.p1Rocket.reset()
 			this.shipExplode(this.ship03)
+			hasHit = true;
 			
 		}
 		if (this.checkCollision(this.p1Rocket, this.ship02)) {
 			this.p1Rocket.reset()
 			this.shipExplode(this.ship02)
+
 			
 		}
 		if (this.checkCollision(this.p1Rocket, this.ship01)) {
 			this.p1Rocket.reset()
 			this.shipExplode(this.ship01)
-			
-			
 		}
+
+		this.checkOutOfBounds(this.p1Rocket);
+			
 	}
 
+	checkOutOfBounds(rocket) {
+		if (rocket.y <= borderUISize * 3 + borderPadding) {
+			rocket.reset();
+			this.timeLeft += -10 * 1000;
+			this.timeHandler.delay = this.timeLeft;
+		}
+	}
 	checkCollision(rocket, ship) {
 		// simple AABB checking
+
 		if (rocket.x < ship.x + ship.width && 
 		  rocket.x + rocket.width > ship.x && 
 		  rocket.y < ship.y + ship.height &&
@@ -224,4 +234,4 @@ class Play extends Phaser.Scene {
 			this.gameOver = false;
 		}
 	}
-  }
+}
