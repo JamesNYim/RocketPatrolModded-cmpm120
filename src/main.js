@@ -13,3 +13,6 @@ let borderPadding = borderUISize / 3;
 
 // Keyboard Bindings
 let keyFIRE, keyRESET, keyLEFT, keyRIGHT;
+
+// Setting high score
+let highScore = localStorage.getItem('rocketPatrolHS') || 0;

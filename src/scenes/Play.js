@@ -12,7 +12,7 @@ class Play extends Phaser.Scene {
 			'starfield')
 			.setOrigin(0,0);
 		
-	  	const greenColor = 0x00FF00;
+	  	const greenColor = (0, 255, 0, 50);
 	  	const whiteColor = 0xFFFFFF;
 
 	  // green UI background
@@ -59,32 +59,32 @@ class Play extends Phaser.Scene {
 			'rocket')
 			.setOrigin(0.5, 0);
 
-			this.ship01 = new Spaceship(
-				this, 
-				game.config.width + borderUISize*6, 
-				borderUISize*4, 
-				'spaceship', 
-				0, 
-				30)
-				.setOrigin(0, 0);
+		this.ship01 = new Spaceship(
+			this, 
+			game.config.width + borderUISize*6, 
+			borderUISize*4, 
+			'spaceship', 
+			0, 
+			30)
+			.setOrigin(0, 0);
 
-			this.ship02 = new Spaceship(
-				this, 
-				game.config.width + borderUISize*3, 
-				borderUISize*5 + borderPadding*2, 
-				'spaceship', 
-				0, 
-				20)
-				.setOrigin(0,0);
+		this.ship02 = new Spaceship(
+			this, 
+			game.config.width + borderUISize*3, 
+			borderUISize*5 + borderPadding*2, 
+			'spaceship', 
+			0, 
+			20)
+			.setOrigin(0,0);
 
-			this.ship03 = new Spaceship(
-				this, 
-				game.config.width, 
-				borderUISize*6 + borderPadding*4, 
-				'spaceship', 
-				0, 
-				10)
-				.setOrigin(0,0);
+		this.ship03 = new Spaceship(
+			this, 
+			game.config.width, 
+			borderUISize*6 + borderPadding*4, 
+			'spaceship', 
+			0, 
+			10)
+			.setOrigin(0,0);
 
 		keyFIRE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 		keyRESET = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
@@ -101,9 +101,22 @@ class Play extends Phaser.Scene {
 		// display score and timer
 		this.scoreConfig = {
 			fontFamily: 'Courier',
-			fontSize: '28px',
-			backgroundColor: '#F3B141',
-			color: '#843605',
+			fontSize: '18px',
+			backgroundColor: 'transparent',
+			color: '#fff',
+			align: 'right',
+			padding: {
+			top: 5,
+			bottom: 5,
+			},
+			width: 'flex'
+		}
+
+		this.timerConfig = {
+			fontFamily: 'Courier',
+			fontSize: '24px',
+			backgroundColor: 'transparent',
+			color: '#fff',
 			align: 'right',
 			padding: {
 			top: 5,
@@ -112,22 +125,36 @@ class Play extends Phaser.Scene {
 			fixedWidth: 100
 		}
 
-		this.timerConfig = {
+		this.gameOverConfig = {
 			fontFamily: 'Courier',
-			fontSize: '28px',
-			backgroundColor: '#F3B141',
-			color: '#843605',
+			fontSize: '24px',
+			backgroundColor: 'transparent',
+			color: '#fff',
 			align: 'right',
 			padding: {
 			top: 5,
 			bottom: 5,
 			},
-			fixedWidth: 100
+			width: 'flex'
 		}
+
+		this.highScoreConfig = {
+			fontFamily: 'Courier',
+			fontSize: '18px',
+			backgroundColor: 'transparent',
+			color: '#fff',
+			align: 'right',
+			padding: {
+			top: 5,
+			bottom: 5,
+			},
+			width: 'flex'
+		}
+
 		this.scoreLeft = this.add.text(
 			borderUISize + borderPadding, 
-			borderUISize + borderPadding*2, 
-			this.p1Score, 
+			borderUISize + borderPadding, 
+			`Score: ${this.p1Score}`, 
 			this.scoreConfig)
 
 		this.timerRight = this.add.text(
@@ -136,6 +163,11 @@ class Play extends Phaser.Scene {
 			this.timer, 
 			this.timerConfig)
 		
+		this.highScoreUI = this.add.text(
+			borderUISize + borderPadding, 
+			borderUISize + borderPadding + 15, 
+			`High Score: ${highScore}`, 
+			this.highScoreConfig)
 	}
 
 	update() {
@@ -151,19 +183,28 @@ class Play extends Phaser.Scene {
 			this.scene.start("menuScene")
 		  }
 		
-		this.starfield.tilePositionX -= 4;
+		if (keyLEFT.isDown) {
+			this.starfield.tilePositionX -= this.p1Rocket.moveSpeed + .5
+		}
+		else if (keyRIGHT.isDown) {
+			this.starfield.tilePositionX += this.p1Rocket.moveSpeed - .5
+		}
+		else {
+			this.starfield.tilePositionX -= 1;
+		}
+		
 		if(!this.gameOver) {               
 			this.p1Rocket.update()         // update rocket sprite
 			this.ship01.update()           // update spaceships (x3)
 			this.ship02.update()
 			this.ship03.update()
 		} 
-		let hasHit = false;
+	
 		// check collisions
 		if(this.checkCollision(this.p1Rocket, this.ship03)) {
 			this.p1Rocket.reset()
 			this.shipExplode(this.ship03)
-			hasHit = true;
+			
 			
 		}
 		if (this.checkCollision(this.p1Rocket, this.ship02)) {
@@ -216,7 +257,11 @@ class Play extends Phaser.Scene {
 		this.sound.play('sfx-explosion')
 		// score add and text update
 		this.p1Score += ship.points
-		this.scoreLeft.text = this.p1Score
+		this.scoreLeft.text = `Score: ${this.p1Score}`
+		if (this.p1Score > highScore) {
+			highScore = this.p1Score;
+			this.highScoreUI.text = `High Score: ${highScore}`;
+		}
 		
 		this.timeLeft += ship.points * 1000;
 		this.timeHandler.delay = this.timeLeft;
@@ -226,8 +271,8 @@ class Play extends Phaser.Scene {
 	  isGameOver(currentTime) {
 		this.scoreConfig.fixedWidth = 0
 		if (currentTime <= 0) {
-			this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', this.scoreConfig).setOrigin(0.5)
-			this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', this.scoreConfig).setOrigin(0.5)
+			this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', this.gameOverConfig).setOrigin(0.5)
+			this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', this.gameOverConfig).setOrigin(0.5)
 			this.gameOver = true
 		}
 		else {

@@ -21,6 +21,14 @@ class Menu extends Phaser.Scene {
 	}
 	
 	create() {
+
+		this.starfield = this.add.tileSprite(
+			0,
+			0,
+			640,
+			480,
+			'starfield')
+			.setOrigin(0,0);
 	// animation configuration
 		this.anims.create({
 			key: 'explode',
@@ -31,8 +39,8 @@ class Menu extends Phaser.Scene {
 		let menuConfig = {
 			fontFamily: 'Courier',
 			fontSize: '28px',
-			backgroundColor: '#F3B141',
-			color: '#843605',
+			backgroundColor: 'transparent',
+			color: '#FFF',
 			align: 'right',
 			padding: {
 				top: 5,
@@ -55,8 +63,8 @@ class Menu extends Phaser.Scene {
 			menuConfig)
 			.setOrigin(0.5);
 
-		menuConfig.backgroundColor = '#00FF00';
-		menuConfig.color = '#000';
+		menuConfig.backgroundColor = 'transparent';
+		menuConfig.color = '#FFF';
 		
 		this.add.text(
 			game.config.width / 2,
@@ -64,6 +72,14 @@ class Menu extends Phaser.Scene {
 			'Press <- for Novice  or -> for Expert',
 			menuConfig)
 			.setOrigin(0.5);
+		
+		this.add.text(
+			game.config.width / 2,
+			game.config.height / 2 + borderUISize + borderPadding + 100,
+			`High Score ${highScore}`,
+			menuConfig)
+			.setOrigin(0.5);
+		
 
 		// define keys
 		keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT)
@@ -72,6 +88,7 @@ class Menu extends Phaser.Scene {
 
 	
 	update() {
+		this.starfield.tilePositionX -= 4;
 		if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
 		  // easy mode
 		  game.settings = {
