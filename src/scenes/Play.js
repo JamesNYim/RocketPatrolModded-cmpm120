@@ -93,11 +93,13 @@ class Play extends Phaser.Scene {
 
 		// initialize score and timer
 		this.p1Score = 0;
-		this.timer = game.settings.gameTimer;
-		this.addedTime = 0;
+		this.timeLeft = game.settings.gameTimer;
+		this.timeHandler = this.time.addEvent({
+			delay: this.timeLeft
+		});
 
 		// display score and timer
-		let scoreConfig = {
+		this.scoreConfig = {
 			fontFamily: 'Courier',
 			fontSize: '28px',
 			backgroundColor: '#F3B141',
@@ -110,7 +112,7 @@ class Play extends Phaser.Scene {
 			fixedWidth: 100
 		}
 
-		let timerConfig = {
+		this.timerConfig = {
 			fontFamily: 'Courier',
 			fontSize: '28px',
 			backgroundColor: '#F3B141',
@@ -126,26 +128,22 @@ class Play extends Phaser.Scene {
 			borderUISize + borderPadding, 
 			borderUISize + borderPadding*2, 
 			this.p1Score, 
-			scoreConfig)
+			this.scoreConfig)
 
 		this.timerRight = this.add.text(
 			borderUISize + borderPadding + game.config.width / 1.4, 
 			borderUISize + borderPadding * 2, 
 			this.timer, 
-			timerConfig)
+			this.timerConfig)
 		
-
-		// GAME OVER 
-		this.gameOver = false
-		scoreConfig.fixedWidth = 0
-		this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
-			this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5)
-			this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', scoreConfig).setOrigin(0.5)
-			this.gameOver = true
-		}, null, this)
 	}
 
 	update() {
+		let timeElapsed = this.timeHandler.getElapsedSeconds();
+		let timeLeft = (this.timeLeft / 1000) - timeElapsed;
+		this.timerRight.text = timeLeft;
+		console.log(`timeLeft: ${timeLeft}`);
+		this.isGameOver(timeLeft);
 		// check key input for restart
 		if(this.gameOver && Phaser.Input.Keyboard.JustDown(keyRESET)) {
 			this.scene.restart()
@@ -166,23 +164,19 @@ class Play extends Phaser.Scene {
 		if(this.checkCollision(this.p1Rocket, this.ship03)) {
 			this.p1Rocket.reset()
 			this.shipExplode(this.ship03)
-			console.log(this.timer)
+			
 		}
 		if (this.checkCollision(this.p1Rocket, this.ship02)) {
 			this.p1Rocket.reset()
 			this.shipExplode(this.ship02)
-			console.log(this.timer)
+			
 		}
 		if (this.checkCollision(this.p1Rocket, this.ship01)) {
 			this.p1Rocket.reset()
 			this.shipExplode(this.ship01)
-			console.log(this.timer)
+			
 			
 		}
-
-		this.timer = ((game.settings.gameTimer - this.clock.elapsed) / 1000) + this.addedTime;
-		console.log(`addedtime: ${this.addedTime}`);
-		this.timerRight.text = this.timer;
 	}
 
 	checkCollision(rocket, ship) {
@@ -213,8 +207,21 @@ class Play extends Phaser.Scene {
 		// score add and text update
 		this.p1Score += ship.points
 		this.scoreLeft.text = this.p1Score
-		this.addedTime += ship.points;
-		//console.log(this.addedTime)
 		
+		this.timeLeft += ship.points * 1000;
+		this.timeHandler.delay = this.timeLeft;
 	  }
+
+	  // GAME OVER 
+	  isGameOver(currentTime) {
+		this.scoreConfig.fixedWidth = 0
+		if (currentTime <= 0) {
+			this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', this.scoreConfig).setOrigin(0.5)
+			this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', this.scoreConfig).setOrigin(0.5)
+			this.gameOver = true
+		}
+		else {
+			this.gameOver = false;
+		}
+	}
   }
