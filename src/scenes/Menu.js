@@ -9,8 +9,14 @@ class Menu extends Phaser.Scene {
 		this.load.image('starfield', './assets/starfield.png');
 		
 		this.load.audio('sfx-select', './assets/sfx-select.wav')
-		this.load.audio('sfx-explosion', './assets/sfx-explosion.wav')
-		this.load.audio('sfx-shot', './assets/sfx-shot.wav')
+		this.load.audio('sfx-explosion1', './assets/Explosion1.wav')
+		this.load.audio('sfx-explosion2', './assets/Explosion2.wav')
+		this.load.audio('sfx-explosion3', './assets/Explosion3.wav')
+		this.load.audio('sfx-explosion4', './assets/Explosion4.wav')
+		this.load.audio('sfx-shot1', './assets/Laser1.wav')
+		this.load.audio('sfx-shot2', './assets/Laser2.wav')
+		this.load.audio('sfx-shot3', './assets/Laser3.wav')
+		this.load.audio('sfx-shot4', './assets/Laser4.wav')
 		
 		this.load.spritesheet('explosion', './assets/explosion.png', {
 			frameWidth: 64,
@@ -108,4 +114,6 @@ class Menu extends Phaser.Scene {
 		  this.scene.start('playScene')    
 		}
 	  }
+
+	
 }

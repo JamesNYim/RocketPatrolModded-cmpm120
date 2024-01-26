@@ -254,7 +254,7 @@ class Play extends Phaser.Scene {
 		  ship.alpha = 1                       // make ship visible again
 		  boom.destroy()                       // remove explosion sprite
 		})
-		this.sound.play('sfx-explosion')
+		this.sound.play(this.randomExplosionSound())
 		// score add and text update
 		this.p1Score += ship.points
 		this.scoreLeft.text = `Score: ${this.p1Score}`
@@ -279,4 +279,11 @@ class Play extends Phaser.Scene {
 			this.gameOver = false;
 		}
 	}
+
+	randomExplosionSound() {
+		let explosionArray = ['sfx-explosion1', 'sfx-explosion2','sfx-explosion3','sfx-explosion4'];
+		return explosionArray[Math.floor(Math.random() * 4)]
+	}
+
+	
 }
